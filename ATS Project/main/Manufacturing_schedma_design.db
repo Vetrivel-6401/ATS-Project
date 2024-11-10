@@ -1,0 +1,180 @@
+
+CREATE DATABASE ManufacturingDB;
+USE ManufacturingDB;
+
+-- Category Table
+CREATE TABLE Category (
+    CategoryID INT PRIMARY KEY,
+    CategoryName VARCHAR(100) NOT NULL,
+    Description TEXT
+);
+
+-- Product Table
+CREATE TABLE Product (
+    ProductID INT PRIMARY KEY,
+    Name VARCHAR(100) NOT NULL,
+    Description TEXT,
+    CategoryID INT,
+    Price DECIMAL(10, 2),
+    ManufacturingDate DATE,
+    ExpiryDate DATE,
+    FOREIGN KEY (CategoryID) REFERENCES Category(CategoryID)
+);
+
+-- RawMaterial Table
+CREATE TABLE RawMaterial (
+    MaterialID INT PRIMARY KEY,
+    Name VARCHAR(100) NOT NULL,
+    Description TEXT,
+    SupplierID INT,
+    UnitOfMeasure VARCHAR(20),
+    UnitCost DECIMAL(10, 2)
+);
+
+-- BillOfMaterials Table
+CREATE TABLE BillOfMaterials (
+    BOMID INT PRIMARY KEY,
+    ProductID INT,
+    ComponentID INT,
+    QuantityRequired DECIMAL(10, 2),
+    FOREIGN KEY (ProductID) REFERENCES Product(ProductID),
+    FOREIGN KEY (ComponentID) REFERENCES RawMaterial(MaterialID)
+);
+
+-- Supplier Table
+CREATE TABLE Supplier (
+    SupplierID INT PRIMARY KEY,
+    Name VARCHAR(100) NOT NULL,
+    ContactInfo VARCHAR(100),
+    Address VARCHAR(255),
+    Rating INT
+);
+
+-- Inventory Table
+CREATE TABLE Inventory (
+    InventoryID INT PRIMARY KEY,
+    ProductID INT,
+    MaterialID INT,
+    QuantityAvailable DECIMAL(10, 2),
+    LocationID INT,
+    ReorderLevel DECIMAL(10, 2),
+    FOREIGN KEY (ProductID) REFERENCES Product(ProductID),
+    FOREIGN KEY (MaterialID) REFERENCES RawMaterial(MaterialID)
+);
+
+-- Location Table
+CREATE TABLE Location (
+    LocationID INT PRIMARY KEY,
+    LocationName VARCHAR(100),
+    Address VARCHAR(255)
+);
+
+-- PurchaseOrder Table
+CREATE TABLE PurchaseOrder (
+    OrderID INT PRIMARY KEY,
+    SupplierID INT,
+    OrderDate DATE,
+    DeliveryDate DATE,
+    Status VARCHAR(50),
+    FOREIGN KEY (SupplierID) REFERENCES Supplier(SupplierID)
+);
+
+-- PurchaseOrderLine Table
+CREATE TABLE PurchaseOrderLine (
+    OrderLineID INT PRIMARY KEY,
+    OrderID INT,
+    MaterialID INT,
+    QuantityOrdered DECIMAL(10, 2),
+    UnitCost DECIMAL(10, 2),
+    FOREIGN KEY (OrderID) REFERENCES PurchaseOrder(OrderID),
+    FOREIGN KEY (MaterialID) REFERENCES RawMaterial(MaterialID)
+);
+
+-- WorkOrder Table
+CREATE TABLE WorkOrder (
+    WorkOrderID INT PRIMARY KEY,
+    ProductID INT,
+    Quantity DECIMAL(10, 2),
+    StartDate DATE,
+    EndDate DATE,
+    Status VARCHAR(50),
+    FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
+);
+
+-- WorkOrderLine Table
+CREATE TABLE WorkOrderLine (
+    WorkOrderLineID INT PRIMARY KEY,
+    WorkOrderID INT,
+    MaterialID INT,
+    QuantityRequired DECIMAL(10, 2),
+    FOREIGN KEY (WorkOrderID) REFERENCES WorkOrder(WorkOrderID),
+    FOREIGN KEY (MaterialID) REFERENCES RawMaterial(MaterialID)
+);
+
+-- Machine Table
+CREATE TABLE Machine (
+    MachineID INT PRIMARY KEY,
+    Name VARCHAR(100),
+    Type VARCHAR(50),
+    Status VARCHAR(50),
+    LocationID INT,
+    FOREIGN KEY (LocationID) REFERENCES Location(LocationID)
+);
+
+-- Maintenance Table
+CREATE TABLE Maintenance (
+    MaintenanceID INT PRIMARY KEY,
+    MachineID INT,
+    Date DATE,
+    Description TEXT,
+    Cost DECIMAL(10, 2),
+    TechnicianID INT,
+    FOREIGN KEY (MachineID) REFERENCES Machine(MachineID)
+);
+
+-- Employee Table
+CREATE TABLE Employee (
+    EmployeeID INT PRIMARY KEY,
+    Name VARCHAR(100),
+    Position VARCHAR(50),
+    DepartmentID INT,
+    Salary DECIMAL(10, 2),
+    HireDate DATE
+);
+
+-- Department Table
+CREATE TABLE Department (
+    DepartmentID INT PRIMARY KEY,
+    DepartmentName VARCHAR(100),
+    ManagerID INT,
+    FOREIGN KEY (ManagerID) REFERENCES Employee(EmployeeID)
+);
+
+-- Customer Table
+CREATE TABLE Customer (
+    CustomerID INT PRIMARY KEY,
+    Name VARCHAR(100),
+    ContactInfo VARCHAR(100),
+    Address VARCHAR(255)
+);
+
+-- SalesOrder Table
+CREATE TABLE SalesOrder (
+    SalesOrderID INT PRIMARY KEY,
+    CustomerID INT,
+    OrderDate DATE,
+    DeliveryDate DATE,
+    Status VARCHAR(50),
+    FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID)
+);
+
+-- SalesOrderLine Table
+CREATE TABLE SalesOrderLine (
+    SalesOrderLineID INT PRIMARY KEY,
+    SalesOrderID INT,
+    ProductID INT,
+    QuantityOrdered DECIMAL(10, 2),
+    UnitPrice DECIMAL(10, 2),
+    FOREIGN KEY (SalesOrderID) REFERENCES SalesOrder(SalesOrderID),
+    FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
+);
